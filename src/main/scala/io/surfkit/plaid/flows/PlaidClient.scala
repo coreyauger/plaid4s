@@ -118,18 +118,30 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
   ////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////
 
-  def authGet(): Future[AuthGetResponse]  =
-    post("auth/get", AuthGetRequest(publicKey)).flatMap(x => unmarshal[AuthGetResponse](x))
+  def authGet(access_token: String, account_ids: Option[Seq[String]] = None): Future[AuthGetResponse]  =
+    post("auth/get", AuthGetRequest(access_token, account_ids)).flatMap(x => unmarshal[AuthGetResponse](x))
 
-  def accountsGet: Future[AccountsGetResponse]  =
-    post("accounts/get", AccountsGetRequest(publicKey)).flatMap(x => unmarshal[AccountsGetResponse](x))
+  def accountsGet(access_token: String, account_ids: Option[Seq[String]] = None): Future[AccountsGetResponse]  =
+    post("accounts/get", AccountsGetRequest(access_token, account_ids)).flatMap(x => unmarshal[AccountsGetResponse](x))
 
+  def accountsBalanceGet(access_token: String, account_ids: Option[Seq[String]] = None): Future[AccountsBalanceGetResponse]  =
+    post("accounts/balance/get", AccountsBalanceGetRequest(access_token, account_ids)).flatMap(x => unmarshal[AccountsBalanceGetResponse](x))
+
+  def identityGet(access_token: String): Future[IdentityGetResponse]  =
+    post("identity/get", IdentityGetRequest(access_token)).flatMap(x => unmarshal[IdentityGetResponse](x))
+
+  def incomeGet(access_token: String): Future[IncomeGetResponse]  =
+    post("income/get", IncomeGetRequest(access_token)).flatMap(x => unmarshal[IncomeGetResponse](x))
+
+  def transactionsGet(access_token: String, start_date: DateTime, end_date: DateTime, account_ids: Option[Seq[String]] = None, count: Option[Int] = None, offset: Option[Int] = None): Future[TransactionsGetResponse]  =
+    post("transactions/get", TransactionsGetRequest(access_token: String, start_date, end_date, account_ids, count, offset)).flatMap(x => unmarshal[TransactionsGetResponse](x))
+
+  def creditDetailsGet(access_token: String): Future[CreditDetailsGetResponse]  =
+    post("credit_details/get", CreditDetailsGetRequest(access_token)).flatMap(x => unmarshal[CreditDetailsGetResponse](x))
   /*
- @POST("/auth/get")
-  Call<AuthGetResponse> authGet(@Body AuthGetRequest request);
 
-  @POST("/accounts/balance/get")
-  Call<AccountsBalanceGetResponse> accountsBalanceGet(@Body AccountsBalanceGetRequest request);
+
+  ----
 
   @POST("/asset_report/create")
   Call<AssetReportCreateResponse> assetReportCreate(@Body AssetReportCreateRequest request);
@@ -159,19 +171,6 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
   @POST("/asset_report/filter")
   Call<AssetReportCreateResponse> assetReportFilter(@Body AssetReportFilterRequest assetReportFilterRequest);
 
-
-
-  @POST("/identity/get")
-  Call<IdentityGetResponse> identityGet(@Body IdentityGetRequest request);
-
-  @POST("/income/get")
-  Call<IncomeGetResponse> incomeGet(@Body IncomeGetRequest request);
-
-  @POST("/transactions/get")
-  Call<TransactionsGetResponse> transactionsGet(@Body TransactionsGetRequest request);
-
-  @POST("/credit_details/get")
-  Call<CreditDetailsGetResponse> creditDetailsGet(@Body CreditDetailsGetRequest request);
 
   @POST("/categories/get")
   Call<CategoriesGetResponse> categoriesGet(@Body CategoriesGetRequest request);

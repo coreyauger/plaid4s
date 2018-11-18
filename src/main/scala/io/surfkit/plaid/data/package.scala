@@ -353,6 +353,173 @@ package object data {
   implicit val AuthGetResponseWrites = Json.writes[AuthGetResponse]
   implicit val AuthGetResponseReads = Json.reads[AuthGetResponse]
 
+  case class AccountsBalanceGetRequest(access_token: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
+  implicit val AccountsBalanceGetRequestWrites = Json.writes[AccountsBalanceGetRequest]
+  implicit val AccountsBalanceGetRequestReads = Json.reads[AccountsBalanceGetRequest]
 
+  case class AccountsBalanceGetResponse(item: ItemStatus, accounts: Seq[Account]) extends Plaid
+  implicit val AccountsBalanceGetResponseWrites = Json.writes[AccountsBalanceGetResponse]
+  implicit val AccountsBalanceGetResponseReads = Json.reads[AccountsBalanceGetResponse]
+
+  case class IdentityGetRequest(access_token: String) extends Plaid with AccessTokenRequest
+  implicit val IdentityGetRequestWrites = Json.writes[IdentityGetRequest]
+  implicit val IdentityGetRequestReads = Json.reads[IdentityGetRequest]
+
+  case class Email(
+                primary: Boolean,
+                emails: Seq[Email],
+                data: String,
+                `type`: String) extends Plaid
+  implicit val EmailWrites = Json.writes[Email]
+  implicit val EmailReads = Json.reads[Email]
+
+  case class AddressData(
+                          street: String,
+                          city: String,
+                          state: String,
+                          zip: String) extends Plaid
+  implicit val AddressDataWrites = Json.writes[AddressData]
+  implicit val AddressDataReads = Json.reads[AddressData]
+
+  case class Address(
+                      accounts: Seq[String],
+                      primary: Boolean,
+                      data: AddressData) extends Plaid
+  implicit val AddressWrites = Json.writes[Address]
+  implicit val AddressReads = Json.reads[Address]
+
+  case class PhoneNumber(
+                          primary: Boolean,
+                          emails: Seq[Email],
+                          data: String,
+                          `type`: String) extends Plaid
+  implicit val PhoneNumberWrites = Json.writes[PhoneNumber]
+  implicit val PhoneNumberReads = Json.reads[PhoneNumber]
+
+  case class Identity(
+               names: Seq[String],
+               emails: Seq[Email],
+               addresses: Seq[Address],
+               phone_numbers: Seq[PhoneNumber]) extends Plaid
+  implicit val IdentityWrites = Json.writes[Identity]
+  implicit val IdentityReads = Json.reads[Identity]
+
+  case class IdentityGetResponse(item: ItemStatus, accounts: Seq[Account], identity: Identity) extends Plaid
+  implicit val IdentityGetResponseWrites = Json.writes[IdentityGetResponse]
+  implicit val IdentityGetResponseReads = Json.reads[IdentityGetResponse]
+
+  case class IncomeGetRequest(access_token: String) extends Plaid with AccessTokenRequest
+  implicit val IncomeGetRequestWrites = Json.writes[IncomeGetRequest]
+  implicit val IncomeGetRequestReads = Json.reads[IncomeGetRequest]
+
+  case class IncomeStream(
+               confidence: Double,
+               days: Double,
+               monthly_income: Double,
+               name: String) extends Plaid
+  implicit val IncomeStreamWrites = Json.writes[IncomeStream]
+  implicit val IncomeStreamReads = Json.reads[IncomeStream]
+
+  case class Income(
+                     last_year_income: Double,
+                     last_year_income_before_tax: Double,
+                     projected_yearly_income: Double,
+                     projected_yearly_income_before_tax: Double,
+                     max_number_of_overlapping_income_sreams: Int,
+                     number_of_income_streams: Int,
+                     income_streams: Seq[IncomeStream]) extends Plaid
+  implicit val IncomeWrites = Json.writes[Income]
+  implicit val IncomeReads = Json.reads[Income]
+
+  case class IncomeGetResponse(item: ItemStatus, income: Income) extends Plaid
+  implicit val IncomeGetResponseWrites = Json.writes[IncomeGetResponse]
+  implicit val IncomeGetResponseReads = Json.reads[IncomeGetResponse]
+
+
+  case class TransactionsGetRequest(access_token: String, start_date: DateTime, end_date: DateTime, account_ids: Option[Seq[String]] = None, count: Option[Int] = None, offset: Option[Int] = None) extends Plaid with AccessTokenRequest
+  implicit val TransactionsGetRequestWrites = Json.writes[TransactionsGetRequest]
+  implicit val TransactionsGetRequestReads = Json.reads[TransactionsGetRequest]
+
+
+  case class PaymentMeta(
+                          by_order_of: String,
+                          payee: String,
+                          payer: String,
+                          payment_method: String,
+                          payment_processor: String,
+                          ppd_id: String,
+                          reason: String,
+                          reference_number: String) extends Plaid
+  implicit val PaymentMetaWrites = Json.writes[PaymentMeta]
+  implicit val PaymentMetaReads = Json.reads[PaymentMeta]
+
+  case class Location(
+                       address: String,
+                       city: String,
+                       state: String,
+                       zip: String,
+                       lat: Double,
+                       lon: Double,
+                       store_number: String) extends Plaid
+  implicit val LocationWrites = Json.writes[Location]
+  implicit val LocationReads = Json.reads[Location]
+
+  case class Transactions(
+                           account_id: String,
+                           amount: Double,
+                           iso_currency_code: String,
+                           unofficial_currency_code: String,
+                           category: Seq[String],
+                           category_id: String,
+                           date: String,
+                           location: Location,
+                           name: String,
+                           original_description: String,
+                           payment_meta: PaymentMeta,
+                           pending: Boolean,
+                           pending_transaction_id: String,
+                           transaction_id: String,
+                           transaction_type: String,
+                           account_owner: String) extends Plaid
+  implicit val TransactionsWrites = Json.writes[Transactions]
+  implicit val TransactionsReads = Json.reads[Transactions]
+
+  case class TransactionsGetResponse(item: ItemStatus, accounts: Seq[Account], transactions: Seq[Transactions], total_transactions: Int) extends Plaid
+  implicit val TransactionsGetResponseWrites = Json.writes[TransactionsGetResponse]
+  implicit val TransactionsGetResponseReads = Json.reads[TransactionsGetResponse]
+
+  case class CreditDetailsGetRequest(access_token: String) extends Plaid with AccessTokenRequest
+  implicit val CreditDetailsGetRequestWrites = Json.writes[CreditDetailsGetRequest]
+  implicit val CreditDetailsGetRequestReads = Json.reads[CreditDetailsGetRequest]
+
+  case class Apr(
+                  apr: Double,
+                  balance_subject_to_apr: Double,
+                  interest_charge_amount: Double) extends Plaid
+  implicit val AprWrites = Json.writes[Apr]
+  implicit val AprReads = Json.reads[Apr]
+
+  case class Aprs(
+               balance_transfers: Apr,
+               cash_advances: Apr,
+               purchases: Apr) extends Plaid
+  implicit val AprsWrites = Json.writes[Aprs]
+  implicit val AprsReads = Json.reads[Aprs]
+
+  case class CreditDetail(
+                           account_id: String,
+                           aprs: Aprs,
+                           last_payment_amount: Double,
+                           last_payment_date: DateTime,
+                           last_statement_balance: Double,
+                           last_statement_date: DateTime,
+                           minimum_payment_amount: Double,
+                           next_bill_due_date: DateTime) extends Plaid
+  implicit val CreditDetailWrites = Json.writes[CreditDetail]
+  implicit val CreditDetailReads = Json.reads[CreditDetail]
+
+  case class CreditDetailsGetResponse(item: ItemStatus, accounts: Seq[Account], creditDetails: Seq[CreditDetail]) extends Plaid
+  implicit val CreditDetailsGetResponseWrites = Json.writes[CreditDetailsGetResponse]
+  implicit val CreditDetailsGetResponseReads = Json.reads[CreditDetailsGetResponse]
 }
 
