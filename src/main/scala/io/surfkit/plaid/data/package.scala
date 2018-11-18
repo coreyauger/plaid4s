@@ -7,8 +7,13 @@ package object data {
 
   sealed trait Plaid{}
 
+  import play.api.libs.json.JodaWrites
+  // TODO: correct date format?
+  implicit val dateTimeWriter: Writes[DateTime] = JodaWrites.jodaDateWrites("dd/MM/yyyy HH:mm:ss")
+  import play.api.libs.json.JodaReads
+  implicit val dateTimeJsReader = JodaReads.jodaDateReads("yyyyMMddHHmmss")
 
-
+/*
   case class Item(
                    available_products: Seq[String],
                    billed_products: Seq[String],
@@ -18,101 +23,9 @@ package object data {
                    webhook: String) extends Plaid
   implicit val ItemWrites = Json.writes[Item]
   implicit val ItemReads = Json.reads[Item]
-
-  case class Balances(
-                 available: Option[Double],
-                 current: Option[Double],
-                 limit: Option[Double],
-                 iso_currency_code: String,
-                 unofficial_currency_code: Option[String]) extends Plaid
-  implicit val BalancesWrites = Json.writes[Balances]
-  implicit val BalancesReads = Json.reads[Balances]
-
-  trait AccountType
-  object AccountType{
-    case object Brokerage extends AccountType
-    case object Credit extends AccountType
-    case object Depository extends AccountType
-    case object Loan extends AccountType
-    case object Mortgage extends AccountType
-    case object Other extends AccountType
-  }
-  implicit val AccountTypeWrites = new Writes[AccountType] {
-    def writes(at : AccountType): JsValue = JsString(at.getClass.getSimpleName.toLowerCase)
-  }
-  implicit val AccountTypeReads: Reads[AccountType] = (
-    (JsPath).read[String].map{
-      case "brokerage" => AccountType.Brokerage
-      case "credit" => AccountType.Credit
-      case "depository" => AccountType.Depository
-      case "loan" => AccountType.Loan
-      case "mortgage" => AccountType.Mortgage
-      case _ => AccountType.Other
-    })
+*/
 
 
-  trait AccountSubType
-  object AccountSubType{
-    case object Brokerage extends AccountSubType
-    case object Credit extends AccountSubType
-    case object Depository extends AccountSubType
-    case object Loan extends AccountSubType
-    case object Mortgage extends AccountSubType
-    case object Other extends AccountSubType
-  }
-  implicit val AccountSubTypeWrites = new Writes[AccountSubType] {
-    def writes(at : AccountSubType): JsValue = JsString(at.getClass.getSimpleName.toLowerCase)
-  }
-  implicit val AccountSubTypeReads: Reads[AccountSubType] = (
-    (JsPath).read[String].map{
-      case "brokerage" => AccountSubType.Brokerage
-      case "credit" => AccountSubType.Credit
-      case "depository" => AccountSubType.Depository
-      case "loan" => AccountSubType.Loan
-      case "mortgage" => AccountSubType.Mortgage
-      case _ => AccountSubType.Other
-    })
-
-  case class Account(
-               account_id: String,
-               item: Item,
-               balances: Balances,
-               name: String,
-               mask: String,
-               official_name: String,
-               `type`: AccountType,
-               subtype: AccountSubType) extends Plaid
-  implicit val AccountWrites = Json.writes[Account]
-  implicit val AccountReads = Json.reads[Account]
-
-
-
-
-
-  case class AccountMeta(
-                      id: String,
-                      name: String,
-                      mask: String,
-                      official_name: String,
-                      `type`: AccountType,
-                      subtype: AccountSubType) extends Plaid
-  implicit val AccountMetaWrites = Json.writes[AccountMeta]
-  implicit val AccountMetaReads = Json.reads[AccountMeta]
-
-  case class InstitutionMeta(
-                      name: String,
-                      institution_id: String) extends Plaid
-  implicit val InstitutionMetaWrites = Json.writes[InstitutionMeta]
-  implicit val InstitutionMetaReads = Json.reads[InstitutionMeta]
-
-
-
-  case class MetaData(
-                      link_session_id: String,
-                      iteminstitution: Seq[InstitutionMeta],
-                      accounts: Seq[AccountMeta]) extends Plaid
-  implicit val MetaDataWrites = Json.writes[MetaData]
-  implicit val MetaDataReads = Json.reads[MetaData]
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -278,6 +191,168 @@ package object data {
                            ) extends Plaid
   implicit val ItemGetResponseWrites = Json.writes[ItemGetResponse]
   implicit val ItemGetResponseReads = Json.reads[ItemGetResponse]
+
+
+  case class ItemCreateRequest(
+                                client_id: String,
+                                secret: String,
+                                institution_id: String,
+                                initial_products: Seq[ProductType],
+                                credentials: Map[String, String] = Map.empty,
+                                webhook: Option[String] = None,
+                                credentials_token: Option[String] = None,
+                                start_date: Option[DateTime] = None,
+                                end_date: Option[DateTime] = None
+                              ) extends Plaid with ClientRequest
+  implicit val ItemCreateRequestWrites = Json.writes[ItemCreateRequest]
+  implicit val ItemCreateRequestReads = Json.reads[ItemCreateRequest]
+
+
+  case class MfaDevice(
+                        device_id: String,
+                        `type`: String,
+                        mask: String
+                      ) extends Plaid
+  implicit val MfaDeviceWrites = Json.writes[MfaDevice]
+  implicit val MfaDeviceReads = Json.reads[MfaDevice]
+
+
+  case class MfaSelection(
+                           question: String,
+                           answers: Seq[String]
+                         ) extends Plaid
+  implicit val MfaSelectionWrites = Json.writes[MfaSelection]
+  implicit val MfaSelectionReads = Json.reads[MfaSelection]
+
+
+  trait MfaType
+  object MfaType{
+    case object device extends MfaType
+    case object device_list extends MfaType
+    case object questions extends MfaType
+    case object selections extends MfaType
+
+  }
+  implicit val MfaTypeWrites = new Writes[MfaType] {
+    def writes(p : MfaType): JsValue = JsString(p match{
+      case MfaType.device => "device"
+      case MfaType.device_list => "device_list"
+      case MfaType.questions => "questions"
+      case MfaType.selections => "selections"
+
+    } )
+  }
+  implicit val MfaTypeReads: Reads[MfaType] = (
+    (JsPath).read[String].map{
+      case "device" => MfaType.device
+      case "device_list" => MfaType.device_list
+      case "questions" => MfaType.questions
+      case "selections" => MfaType.selections
+    })
+
+
+  case class ItemCreateResponse(
+                                 access_token: String,
+                                 item: ItemStatus,
+                                 device: String,
+                                 device_list: Seq[MfaDevice],
+                                 mfa_type: MfaType,
+                                 questions: Seq[String],
+                                 selections: Seq[MfaSelection]
+                            ) extends Plaid
+  implicit val ItemCreateResponseWrites = Json.writes[ItemCreateResponse]
+  implicit val ItemCreateResponseReads = Json.reads[ItemCreateResponse]
+
+
+  case class ItemWebhookUpdateRequest(
+                                 access_token: String,
+                                 webhook: String
+                              ) extends Plaid with AccessTokenRequest
+  implicit val ItemWebhookUpdateRequestWrites = Json.writes[ItemWebhookUpdateRequest]
+  implicit val ItemWebhookUpdateRequestReads = Json.reads[ItemWebhookUpdateRequest]
+
+
+  case class ItemWebhookUpdateResponse(item: ItemStatus) extends Plaid
+  implicit val ItemWebhookUpdateResponseWrites = Json.writes[ItemWebhookUpdateResponse]
+  implicit val ItemWebhookUpdateResponseReads = Json.reads[ItemWebhookUpdateResponse]
+
+
+  case class ItemPublicTokenCreateRequest(access_token: String) extends Plaid with AccessTokenRequest
+  implicit val ItemPublicTokenCreateRequestWrites = Json.writes[ItemPublicTokenCreateRequest]
+  implicit val ItemPublicTokenCreateRequestReads = Json.reads[ItemPublicTokenCreateRequest]
+
+  case class ItemPublicTokenCreateResponse(expiration: DateTime, public_token: String) extends Plaid
+  implicit val ItemPublicTokenCreateResponseWrites = Json.writes[ItemPublicTokenCreateResponse]
+  implicit val ItemPublicTokenCreateResponseReads = Json.reads[ItemPublicTokenCreateResponse]
+
+  case class ItemPublicTokenExchangeRequest(public_key: String) extends Plaid with PublicRequest
+  implicit val ItemPublicTokenExchangeRequestWrites = Json.writes[ItemPublicTokenExchangeRequest]
+  implicit val ItemPublicTokenExchangeRequestReads = Json.reads[ItemPublicTokenExchangeRequest]
+
+  case class ItemPublicTokenExchangeResponse(access_token: String, item_id: String) extends Plaid
+  implicit val ItemPublicTokenExchangeResponseWrites = Json.writes[ItemPublicTokenExchangeResponse]
+  implicit val ItemPublicTokenExchangeResponseReads = Json.reads[ItemPublicTokenExchangeResponse]
+
+
+  case class AccountsGetRequest(access_token: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
+  implicit val AccountsGetRequestWrites = Json.writes[AccountsGetRequest]
+  implicit val AccountsGetRequestReads = Json.reads[AccountsGetRequest]
+
+  case class Balances(
+                       available: Double,
+                       current: Double,
+                       limit: Double,
+                       iso_currency_code: String,
+                       unofficial_currency_code: Option[String]) extends Plaid
+  implicit val BalancesWrites = Json.writes[Balances]
+  implicit val BalancesReads = Json.reads[Balances]
+
+  case class Account(
+              account_id: String,
+              `type`: String,
+              subtype: String,
+              balances: Balances,
+              name: String,
+              mask: String,
+              official_name: String) extends Plaid
+  implicit val AccountWrites = Json.writes[Account]
+  implicit val AccountReads = Json.reads[Account]
+
+  case class AccountsGetResponse(item: ItemStatus, account: Account) extends Plaid
+  implicit val AccountsGetResponseWrites = Json.writes[AccountsGetResponse]
+  implicit val AccountsGetResponseReads = Json.reads[AccountsGetResponse]
+
+
+  case class AuthGetRequest(access_token: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
+  implicit val AuthGetRequestWrites = Json.writes[AuthGetRequest]
+  implicit val AuthGetRequestReads = Json.reads[AuthGetRequest]
+
+  case class NumberACH(
+                        account_id: String,
+                        account: String,
+                        routing: String,
+                        wire_routing: String) extends Plaid
+  implicit val NumberACHWrites = Json.writes[NumberACH]
+  implicit val NumberACHReads = Json.reads[NumberACH]
+
+  case class NumberEFT(
+                        account_id: String,
+                        account: String,
+                        institution: String,
+                        branch: String) extends Plaid
+  implicit val NumberEFTWrites = Json.writes[NumberEFT]
+  implicit val NumberEFTReads = Json.reads[NumberEFT]
+
+  case class Numbers(
+                      ach: Seq[NumberACH],
+                      eft: Seq[NumberEFT]) extends Plaid
+  implicit val NumbersWrites = Json.writes[Numbers]
+  implicit val NumbersReads = Json.reads[Numbers]
+
+  case class AuthGetResponse(item: ItemStatus, accounts: Seq[Account], numbers: Numbers) extends Plaid
+  implicit val AuthGetResponseWrites = Json.writes[AuthGetResponse]
+  implicit val AuthGetResponseReads = Json.reads[AuthGetResponse]
+
 
 }
 

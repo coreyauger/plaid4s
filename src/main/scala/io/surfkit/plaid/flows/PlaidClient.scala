@@ -1,22 +1,17 @@
 package io.surfkit.plaid.flows
 
-import java.io.{File, PrintWriter}
-import java.net.URL
-
-import akka.actor.{ActorSystem, Cancellable}
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
-import org.joda.time.{DateTime, DateTimeZone}
+import org.joda.time.DateTime
 import play.api.libs.json.{Json, Reads, Writes}
 import io.surfkit.plaid.data._
 
-import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.concurrent.duration.FiniteDuration
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future}
 
 class PlaidClient(clientId: String, clientSecret: String, publicKey: String, endpoint: String = "https://sandbox.plaid.com/")(implicit system: ActorSystem, materializer: Materializer, ex: ExecutionContext) extends PlayJsonSupport {
 
@@ -51,16 +46,29 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
 
   def itemGet(access_token: String): Future[ItemGetResponse]  =
     post("item/get", ItemGetRequest(access_token)).flatMap(x => unmarshal[ItemGetResponse](x))
-  /*
 
-  @POST("/item/create")
-  Call<ItemCreateResponse> itemCreate(@Body ItemCreateRequest request);
+  def itemCreate(institution_id: String,
+                 initial_products: Seq[ProductType],
+                 credentials: Map[String, String] = Map.empty,
+                 webhook: Option[String] = None,
+                 credentials_token: Option[String] = None,
+                 start_date: Option[DateTime] = None,
+                 end_date: Option[DateTime] = None): Future[ItemCreateResponse]  =
+    post("item/create", ItemCreateRequest(clientId, clientSecret, institution_id, initial_products, credentials, webhook, credentials_token, start_date, end_date)).flatMap(x => unmarshal[ItemCreateResponse](x))
+
+
+  def itemGet(access_token: String, webhook: String): Future[ItemWebhookUpdateResponse]  =
+    post("item/webhook/update", ItemWebhookUpdateRequest(access_token, webhook)).flatMap(x => unmarshal[ItemWebhookUpdateResponse](x))
+
+  def itemPublicTokenCreate(access_token: String): Future[ItemPublicTokenCreateResponse]  =
+    post("tem/public_token/create", ItemPublicTokenCreateRequest(access_token)).flatMap(x => unmarshal[ItemPublicTokenCreateResponse](x))
+
+  def itemPublicTokenExchange: Future[ItemPublicTokenExchangeResponse]  =
+    post("item/public_token/exchange", ItemPublicTokenExchangeRequest(publicKey)).flatMap(x => unmarshal[ItemPublicTokenExchangeResponse](x))
+  /*
 
   @POST("/item/mfa")
   Call<ItemMfaResponse> itemMfa(@Body ItemMfaRequest request);
-
-  @POST("/item/get")
-  Call<ItemGetResponse> itemGet(@Body ItemGetRequest request);
 
   @POST("/item/credentials/update")
   Call<ItemCredentialsUpdateResponse> itemCredentialsUpdate(@Body ItemCredentialsUpdateRequest request);
@@ -70,12 +78,6 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
 
   @POST("/item/mfa/encrypt")
   Call<ItemMfaEncryptResponse> itemMfaEncrypt(@Body ItemMfaEncryptRequest request);
-
-  @POST("/item/public_token/exchange")
-  Call<ItemPublicTokenExchangeResponse> itemPublicTokenExchange(@Body ItemPublicTokenExchangeRequest request);
-
-  @POST("/item/public_token/create")
-  Call<ItemPublicTokenCreateResponse> itemPublicTokenCreate(@Body ItemPublicTokenCreateRequest request);
 
   @POST("/processor/stripe/bank_account_token/create")
   Call<ItemStripeTokenCreateResponse> itemStripeTokenCreate(@Body ItemStripeTokenCreateRequest request);
@@ -97,24 +99,34 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
 
   @POST("/item/remove")
   Call<ItemRemoveResponse> itemRemove(@Body ItemRemoveRequest request);
+*/
 
-  @POST("/item/webhook/update")
-  Call<ItemWebhookUpdateResponse> itemWebhookUpdate(@Body ItemWebhookUpdateRequest request);
 
   // sandbox-only endpoints
   ////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////\
+
+  /*
   @POST("/sandbox/item/reset_login")
   Call<SandboxItemResetLoginResponse> sandboxItemResetLogin(@Body SandboxItemResetLoginRequest request);
 
   @POST("/sandbox/public_token/create")
   Call<SandboxPublicTokenCreateResponse> sandboxPublicTokenCreate(@Body SandboxPublicTokenCreateRequest request);
+  */
 
   // products
   ////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////
-  @POST("/accounts/get")
-  Call<AccountsGetResponse> accountsGet(@Body AccountsGetRequest request);
+
+  def authGet(): Future[AuthGetResponse]  =
+    post("auth/get", AuthGetRequest(publicKey)).flatMap(x => unmarshal[AuthGetResponse](x))
+
+  def accountsGet: Future[AccountsGetResponse]  =
+    post("accounts/get", AccountsGetRequest(publicKey)).flatMap(x => unmarshal[AccountsGetResponse](x))
+
+  /*
+ @POST("/auth/get")
+  Call<AuthGetResponse> authGet(@Body AuthGetRequest request);
 
   @POST("/accounts/balance/get")
   Call<AccountsBalanceGetResponse> accountsBalanceGet(@Body AccountsBalanceGetRequest request);
@@ -147,8 +159,7 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
   @POST("/asset_report/filter")
   Call<AssetReportCreateResponse> assetReportFilter(@Body AssetReportFilterRequest assetReportFilterRequest);
 
-  @POST("/auth/get")
-  Call<AuthGetResponse> authGet(@Body AuthGetRequest request);
+
 
   @POST("/identity/get")
   Call<IdentityGetResponse> identityGet(@Body IdentityGetRequest request);
@@ -166,45 +177,4 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
   Call<CategoriesGetResponse> categoriesGet(@Body CategoriesGetRequest request);
    */
 
-
-
-
-
-/*
-  object httpApi extends PlaidSignedRequester(getCreds _)
-
-  def unmarshal[T <: Plaid](response: HttpResponse)(implicit um: Reads[T]):Future[T] = Unmarshal(response.entity).to[T]
-
-  def publicTokenExchange(account: String, replace: Questrade.ReplaceOrder)(implicit um: Reads[Questrade.OrderResponse],uw: Writes[Questrade.ReplaceOrder]) =
-    httpApi.post[Questrade.ReplaceOrder](s"/item/public_token/exchange", replace).flatMap(x => unmarshal(x))
-
-  def login()(implicit um: Reads[Questrade.Login]) = {
-    println(s"curl -XGET '${loginUrl}'")
-    Http().singleRequest(HttpRequest(uri = loginUrl)).flatMap(x => unmarshal(x)).map(storeLogin)
-  }
-
-  def accounts()(implicit um: Reads[Questrade.Accounts]) =
-    httpApi.get("accounts").flatMap(x => unmarshal(x) )
-
-  def quote(ids: Set[Int])(implicit um: Reads[Questrade.Quotes]) =
-    httpApi.get(s"markets/quotes?ids=${ids.mkString("",",","")}").flatMap(x => unmarshal(x))
-
-  def order(account: String, post: Questrade.PostOrder)(implicit um: Reads[Questrade.OrderResponse],uw: Writes[Questrade.PostOrder]) =
-    httpApi.post[Questrade.PostOrder](s"accounts/${account}/orders", post).flatMap(x => unmarshal(x))
-
-  def bracket(account: String, post: Questrade.PostBracket)(implicit um: Reads[Questrade.OrderResponse],uw1: Writes[Questrade.BracketOrder]) =
-    httpApi.post[Questrade.PostBracket](s"accounts/${account}/orders/bracket", post).flatMap(x => unmarshal(x))
-
-  def cancel(account: String, order: String)(implicit um: Reads[Questrade.OrderCancelConfirm]) =
-    httpApi.delete(s"accounts/${account}/orders/${order}").flatMap(x => unmarshal(x))
-
-  private[this] def notificationStreamPort()(implicit um: Reads[Questrade.StreamPort]) =
-    httpApi.get("notifications?mode=WebSocket").flatMap(x => unmarshal(x) )
-
-  private[this] def l1StreamPort(ids: Set[Int])(implicit um: Reads[Questrade.StreamPort]) =
-    httpApi.get(s"markets/quotes?ids=${ids.mkString("",",","")}&stream=true&mode=WebSocket").flatMap(x => unmarshal(x) )
-
-
-  def sendSlack(webhookUrl: String, attachments: Questrade.SlackAttachments) = post(webhookUrl, attachments)
-*/
 }
