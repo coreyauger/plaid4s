@@ -1,4 +1,4 @@
-package io.surfkit.plaid.flows
+package io.surfkit.plaidclient.flows
 
 import java.util.UUID
 
@@ -11,7 +11,7 @@ import akka.http.scaladsl.client.RequestBuilding
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.{Keep, Source}
 import akka.util.ByteString
-import io.surfkit.plaid.data.Plaid
+import io.surfkit.plaidclient.data.Plaid
 
 import scala.concurrent.Future
 import org.joda.time.DateTimeZone

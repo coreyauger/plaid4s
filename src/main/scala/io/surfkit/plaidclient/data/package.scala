@@ -1,11 +1,11 @@
-package io.surfkit.plaid
+package io.surfkit.plaidclient
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
 
 package object data {
 
-  sealed trait Plaid{}
+  trait Plaid{}
 
   import play.api.libs.json.JodaWrites
   // TODO: correct date format?

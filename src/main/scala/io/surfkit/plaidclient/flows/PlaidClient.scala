@@ -1,4 +1,4 @@
-package io.surfkit.plaid.flows
+package io.surfkit.plaidclient.flows
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
@@ -9,7 +9,7 @@ import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkahttpplayjson.PlayJsonSupport
 import org.joda.time.DateTime
 import play.api.libs.json.{Json, Reads, Writes}
-import io.surfkit.plaid.data._
+import io.surfkit.plaidclient.data._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -57,7 +57,7 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
     post("item/create", ItemCreateRequest(clientId, clientSecret, institution_id, initial_products, credentials, webhook, credentials_token, start_date, end_date)).flatMap(x => unmarshal[ItemCreateResponse](x))
 
 
-  def itemGet(access_token: String, webhook: String): Future[ItemWebhookUpdateResponse]  =
+  def webhookUpdate(access_token: String, webhook: String): Future[ItemWebhookUpdateResponse]  =
     post("item/webhook/update", ItemWebhookUpdateRequest(access_token, webhook)).flatMap(x => unmarshal[ItemWebhookUpdateResponse](x))
 
   def itemPublicTokenCreate(access_token: String): Future[ItemPublicTokenCreateResponse]  =

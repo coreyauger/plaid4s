@@ -1,9 +1,9 @@
-package io.surfkit.plaid
+package io.surfkit.plaidclient
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings, Supervision}
-import io.surfkit.plaid.data._
-import io.surfkit.plaid.flows._
+import io.surfkit.plaidclient.data._
+import io.surfkit.plaidclient.flows._
 import org.joda.time.DateTime
 
 import scala.concurrent.duration._
