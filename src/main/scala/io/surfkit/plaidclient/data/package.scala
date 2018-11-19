@@ -13,21 +13,6 @@ package object data {
   import play.api.libs.json.JodaReads
   implicit val dateTimeJsReader = JodaReads.jodaDateReads("yyyyMMddHHmmss")
 
-/*
-  case class Item(
-                   available_products: Seq[String],
-                   billed_products: Seq[String],
-                   error: Option[String] = None,
-                   institution_id: String,
-                   item_id: String,
-                   webhook: String) extends Plaid
-  implicit val ItemWrites = Json.writes[Item]
-  implicit val ItemReads = Json.reads[Item]
-*/
-
-
-
-
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   trait PublicRequest{
@@ -367,7 +352,7 @@ package object data {
 
   case class Email(
                 primary: Boolean,
-                emails: Seq[Email],
+                emails: Seq[String],
                 data: String,
                 `type`: String) extends Plaid
   implicit val EmailWrites = Json.writes[Email]
