@@ -45,7 +45,7 @@ package object data {
 
   //INVALID_REQUEST, INVALID_INPUT, RATE_LIMIT_EXCEEDED, API_ERROR, ITEM_ERROR, INSTITUTION_ERROR,
   //    ASSET_REPORT_ERROR
-  trait ErrorType
+  sealed trait ErrorType
   object ErrorType{
     case object INVALID_REQUEST extends ErrorType
     case object INVALID_INPUT extends ErrorType
@@ -88,7 +88,7 @@ package object data {
   implicit val CredentialWrites = Json.writes[Credential]
   implicit val CredentialReads = Json.reads[Credential]
 
-  trait ProductType
+  sealed trait ProductType
   object ProductType{
     case object Assets extends ProductType
     case object Auth extends ProductType
@@ -225,7 +225,7 @@ package object data {
   implicit val MfaSelectionReads = Json.reads[MfaSelection]
 
 
-  trait MfaType
+  sealed trait MfaType
   object MfaType{
     case object device extends MfaType
     case object device_list extends MfaType
