@@ -270,7 +270,7 @@ package object data {
   implicit val ItemPublicTokenCreateResponseWrites = Json.writes[ItemPublicTokenCreateResponse]
   implicit val ItemPublicTokenCreateResponseReads = Json.reads[ItemPublicTokenCreateResponse]
 
-  case class ItemPublicTokenExchangeRequest(public_key: String, client_id: String, secret: String) extends Plaid with ClientRequest
+  case class ItemPublicTokenExchangeRequest(public_token: String, client_id: String, secret: String) extends Plaid with ClientRequest
   implicit val ItemPublicTokenExchangeRequestWrites = Json.writes[ItemPublicTokenExchangeRequest]
   implicit val ItemPublicTokenExchangeRequestReads = Json.reads[ItemPublicTokenExchangeRequest]
 
