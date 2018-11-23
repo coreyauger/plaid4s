@@ -45,7 +45,7 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
   ////////////////////////////////////////////////////////
 
   def itemGet(access_token: String): Future[ItemGetResponse]  =
-    post("item/get", ItemGetRequest(access_token)).flatMap(x => unmarshal[ItemGetResponse](x))
+    post("item/get", ItemGetRequest(access_token, clientId, clientSecret)).flatMap(x => unmarshal[ItemGetResponse](x))
 
   def itemCreate(institution_id: String,
                  initial_products: Seq[ProductType],
@@ -58,10 +58,10 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
 
 
   def webhookUpdate(access_token: String, webhook: String): Future[ItemWebhookUpdateResponse]  =
-    post("item/webhook/update", ItemWebhookUpdateRequest(access_token, webhook)).flatMap(x => unmarshal[ItemWebhookUpdateResponse](x))
+    post("item/webhook/update", ItemWebhookUpdateRequest(access_token, clientId, clientSecret, webhook)).flatMap(x => unmarshal[ItemWebhookUpdateResponse](x))
 
   def itemPublicTokenCreate(access_token: String): Future[ItemPublicTokenCreateResponse]  =
-    post("tem/public_token/create", ItemPublicTokenCreateRequest(access_token)).flatMap(x => unmarshal[ItemPublicTokenCreateResponse](x))
+    post("tem/public_token/create", ItemPublicTokenCreateRequest(access_token, clientId, clientSecret)).flatMap(x => unmarshal[ItemPublicTokenCreateResponse](x))
 
   def itemPublicTokenExchange(publicToken: String): Future[ItemPublicTokenExchangeResponse]  =
     post("item/public_token/exchange", ItemPublicTokenExchangeRequest(publicToken, clientId, clientSecret)).flatMap(x => unmarshal[ItemPublicTokenExchangeResponse](x))
@@ -119,25 +119,25 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
   ////////////////////////////////////////////////////////
 
   def authGet(access_token: String, account_ids: Option[Seq[String]] = None): Future[AuthGetResponse]  =
-    post("auth/get", AuthGetRequest(access_token, account_ids)).flatMap(x => unmarshal[AuthGetResponse](x))
+    post("auth/get", AuthGetRequest(access_token, clientId, clientSecret, account_ids)).flatMap(x => unmarshal[AuthGetResponse](x))
 
   def accountsGet(access_token: String, account_ids: Option[Seq[String]] = None): Future[AccountsGetResponse]  =
-    post("accounts/get", AccountsGetRequest(access_token, account_ids)).flatMap(x => unmarshal[AccountsGetResponse](x))
+    post("accounts/get", AccountsGetRequest(access_token, clientId, clientSecret, account_ids)).flatMap(x => unmarshal[AccountsGetResponse](x))
 
   def accountsBalanceGet(access_token: String, account_ids: Option[Seq[String]] = None): Future[AccountsBalanceGetResponse]  =
-    post("accounts/balance/get", AccountsBalanceGetRequest(access_token, account_ids)).flatMap(x => unmarshal[AccountsBalanceGetResponse](x))
+    post("accounts/balance/get", AccountsBalanceGetRequest(access_token, clientId, clientSecret, account_ids)).flatMap(x => unmarshal[AccountsBalanceGetResponse](x))
 
   def identityGet(access_token: String): Future[IdentityGetResponse]  =
-    post("identity/get", IdentityGetRequest(access_token)).flatMap(x => unmarshal[IdentityGetResponse](x))
+    post("identity/get", IdentityGetRequest(access_token, clientId, clientSecret)).flatMap(x => unmarshal[IdentityGetResponse](x))
 
   def incomeGet(access_token: String): Future[IncomeGetResponse]  =
-    post("income/get", IncomeGetRequest(access_token)).flatMap(x => unmarshal[IncomeGetResponse](x))
+    post("income/get", IncomeGetRequest(access_token, clientId, clientSecret)).flatMap(x => unmarshal[IncomeGetResponse](x))
 
   def transactionsGet(access_token: String, start_date: DateTime, end_date: DateTime, account_ids: Option[Seq[String]] = None, count: Option[Int] = None, offset: Option[Int] = None): Future[TransactionsGetResponse]  =
-    post("transactions/get", TransactionsGetRequest(access_token: String, start_date, end_date, account_ids, count, offset)).flatMap(x => unmarshal[TransactionsGetResponse](x))
+    post("transactions/get", TransactionsGetRequest(access_token, clientId, clientSecret, start_date, end_date, account_ids, count, offset)).flatMap(x => unmarshal[TransactionsGetResponse](x))
 
   def creditDetailsGet(access_token: String): Future[CreditDetailsGetResponse]  =
-    post("credit_details/get", CreditDetailsGetRequest(access_token)).flatMap(x => unmarshal[CreditDetailsGetResponse](x))
+    post("credit_details/get", CreditDetailsGetRequest(access_token, clientId, clientSecret)).flatMap(x => unmarshal[CreditDetailsGetResponse](x))
   /*
 
 

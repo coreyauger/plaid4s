@@ -24,7 +24,7 @@ package object data {
     def secret: String
   }
 
-  trait AccessTokenRequest{
+  trait AccessTokenRequest extends ClientRequest{
     def access_token: String
   }
 
@@ -154,7 +154,7 @@ package object data {
   implicit val InstitutionsSearchResponseReads = Json.reads[InstitutionsSearchResponse]
 
 
-  case class ItemGetRequest(access_token: String) extends Plaid with AccessTokenRequest
+  case class ItemGetRequest(access_token: String, client_id: String, secret: String) extends Plaid with AccessTokenRequest
   implicit val ItemGetRequestWrites = Json.writes[ItemGetRequest]
   implicit val ItemGetRequestReads = Json.reads[ItemGetRequest]
 
@@ -251,6 +251,8 @@ package object data {
 
   case class ItemWebhookUpdateRequest(
                                  access_token: String,
+                                 client_id: String,
+                                 secret: String,
                                  webhook: String
                               ) extends Plaid with AccessTokenRequest
   implicit val ItemWebhookUpdateRequestWrites = Json.writes[ItemWebhookUpdateRequest]
@@ -262,7 +264,7 @@ package object data {
   implicit val ItemWebhookUpdateResponseReads = Json.reads[ItemWebhookUpdateResponse]
 
 
-  case class ItemPublicTokenCreateRequest(access_token: String) extends Plaid with AccessTokenRequest
+  case class ItemPublicTokenCreateRequest(access_token: String, client_id: String, secret: String) extends Plaid with AccessTokenRequest
   implicit val ItemPublicTokenCreateRequestWrites = Json.writes[ItemPublicTokenCreateRequest]
   implicit val ItemPublicTokenCreateRequestReads = Json.reads[ItemPublicTokenCreateRequest]
 
@@ -279,7 +281,7 @@ package object data {
   implicit val ItemPublicTokenExchangeResponseReads = Json.reads[ItemPublicTokenExchangeResponse]
 
 
-  case class AccountsGetRequest(access_token: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
+  case class AccountsGetRequest(access_token: String, client_id: String, secret: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
   implicit val AccountsGetRequestWrites = Json.writes[AccountsGetRequest]
   implicit val AccountsGetRequestReads = Json.reads[AccountsGetRequest]
 
@@ -308,7 +310,7 @@ package object data {
   implicit val AccountsGetResponseReads = Json.reads[AccountsGetResponse]
 
 
-  case class AuthGetRequest(access_token: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
+  case class AuthGetRequest(access_token: String, client_id: String, secret: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
   implicit val AuthGetRequestWrites = Json.writes[AuthGetRequest]
   implicit val AuthGetRequestReads = Json.reads[AuthGetRequest]
 
@@ -338,7 +340,7 @@ package object data {
   implicit val AuthGetResponseWrites = Json.writes[AuthGetResponse]
   implicit val AuthGetResponseReads = Json.reads[AuthGetResponse]
 
-  case class AccountsBalanceGetRequest(access_token: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
+  case class AccountsBalanceGetRequest(access_token: String, client_id: String, secret: String, account_ids: Option[Seq[String]] = None) extends Plaid with AccessTokenRequest
   implicit val AccountsBalanceGetRequestWrites = Json.writes[AccountsBalanceGetRequest]
   implicit val AccountsBalanceGetRequestReads = Json.reads[AccountsBalanceGetRequest]
 
@@ -346,7 +348,7 @@ package object data {
   implicit val AccountsBalanceGetResponseWrites = Json.writes[AccountsBalanceGetResponse]
   implicit val AccountsBalanceGetResponseReads = Json.reads[AccountsBalanceGetResponse]
 
-  case class IdentityGetRequest(access_token: String) extends Plaid with AccessTokenRequest
+  case class IdentityGetRequest(access_token: String, client_id: String, secret: String) extends Plaid with AccessTokenRequest
   implicit val IdentityGetRequestWrites = Json.writes[IdentityGetRequest]
   implicit val IdentityGetRequestReads = Json.reads[IdentityGetRequest]
 
@@ -393,7 +395,7 @@ package object data {
   implicit val IdentityGetResponseWrites = Json.writes[IdentityGetResponse]
   implicit val IdentityGetResponseReads = Json.reads[IdentityGetResponse]
 
-  case class IncomeGetRequest(access_token: String) extends Plaid with AccessTokenRequest
+  case class IncomeGetRequest(access_token: String, client_id: String, secret: String) extends Plaid with AccessTokenRequest
   implicit val IncomeGetRequestWrites = Json.writes[IncomeGetRequest]
   implicit val IncomeGetRequestReads = Json.reads[IncomeGetRequest]
 
@@ -421,7 +423,7 @@ package object data {
   implicit val IncomeGetResponseReads = Json.reads[IncomeGetResponse]
 
 
-  case class TransactionsGetRequest(access_token: String, start_date: DateTime, end_date: DateTime, account_ids: Option[Seq[String]] = None, count: Option[Int] = None, offset: Option[Int] = None) extends Plaid with AccessTokenRequest
+  case class TransactionsGetRequest(access_token: String, client_id: String, secret: String, start_date: DateTime, end_date: DateTime, account_ids: Option[Seq[String]] = None, count: Option[Int] = None, offset: Option[Int] = None) extends Plaid with AccessTokenRequest
   implicit val TransactionsGetRequestWrites = Json.writes[TransactionsGetRequest]
   implicit val TransactionsGetRequestReads = Json.reads[TransactionsGetRequest]
 
@@ -473,7 +475,7 @@ package object data {
   implicit val TransactionsGetResponseWrites = Json.writes[TransactionsGetResponse]
   implicit val TransactionsGetResponseReads = Json.reads[TransactionsGetResponse]
 
-  case class CreditDetailsGetRequest(access_token: String) extends Plaid with AccessTokenRequest
+  case class CreditDetailsGetRequest(access_token: String, client_id: String, secret: String) extends Plaid with AccessTokenRequest
   implicit val CreditDetailsGetRequestWrites = Json.writes[CreditDetailsGetRequest]
   implicit val CreditDetailsGetRequestReads = Json.reads[CreditDetailsGetRequest]
 
