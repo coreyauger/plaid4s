@@ -64,7 +64,7 @@ class PlaidClient(clientId: String, clientSecret: String, publicKey: String, end
     post("tem/public_token/create", ItemPublicTokenCreateRequest(access_token)).flatMap(x => unmarshal[ItemPublicTokenCreateResponse](x))
 
   def itemPublicTokenExchange(plaidLinkPublicToken: String): Future[ItemPublicTokenExchangeResponse]  =
-    post("item/public_token/exchange", ItemPublicTokenExchangeRequest(plaidLinkPublicToken)).flatMap(x => unmarshal[ItemPublicTokenExchangeResponse](x))
+    post("item/public_token/exchange", ItemPublicTokenExchangeRequest(plaidLinkPublicToken, clientId, clientSecret)).flatMap(x => unmarshal[ItemPublicTokenExchangeResponse](x))
   /*
 
   @POST("/item/mfa")
